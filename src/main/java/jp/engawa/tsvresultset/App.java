@@ -1,12 +1,12 @@
 package jp.engawa.tsvresultset;
 
 /**
- * エントリポイント（必要に応じて置き換えてください）。
+ * Application entry point (replace with your own bootstrap if needed).
  */
 public final class App {
 
     public static void main(String[] args) {
-        // TODO: アプリケーションの起動処理
+        // TODO: application startup
     }
 
     private App() {
