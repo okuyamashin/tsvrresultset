@@ -12,7 +12,10 @@ import java.sql.SQLException;
 
 /**
  * Reads a TSV file and exposes it as a {@link ResultSet}.
- * Only {@code getString} (and string-oriented accessors) is supported; other types are not.
+ * <p>
+ * Use {@code getString} for raw values. {@code getInt}, {@code getLong}, {@code getFloat}, and {@code getDouble} parse
+ * the same cell text (trimmed; commas removed as thousands separators; invalid or empty non-null text yields {@code 0}).
+ * </p>
  */
 public class TsvResultSet implements ResultSet {
     protected File tsvFile;
@@ -23,6 +26,55 @@ public class TsvResultSet implements ResultSet {
     protected String[] currentRow;
     /** Whether the last value returned from {@code getString} was SQL {@code NULL} (or treated as such). */
     protected boolean lastWasNull;
+
+    /**
+     * Lenient parse for TSV cells: {@code null}, blank after trim, or invalid number → {@code 0}.
+     * Commas are stripped (e.g. {@code 1,234} → 1234). Does not throw on bad input.
+     */
+    private static int parseInt(String value) {
+        if (value == null) {
+            return 0;
+        }
+        try {
+            String v = value.trim().replace(",", "");
+            if (v.isEmpty()) {
+                return 0;
+            }
+            return Integer.parseInt(v);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+
+    private static long parseLong(String value) {
+        if (value == null) {
+            return 0L;
+        }
+        try {
+            String v = value.trim().replace(",", "");
+            if (v.isEmpty()) {
+                return 0L;
+            }
+            return Long.parseLong(v);
+        } catch (NumberFormatException e) {
+            return 0L;
+        }
+    }
+
+    private static double parseDouble(String value) {
+        if (value == null) {
+            return 0.0d;
+        }
+        try {
+            String v = value.trim().replace(",", "");
+            if (v.isEmpty()) {
+                return 0.0d;
+            }
+            return Double.parseDouble(v);
+        } catch (NumberFormatException e) {
+            return 0.0d;
+        }
+    }
 
     public TsvResultSet(File tsvFile) throws IOException {
         this.tsvFile = tsvFile;
@@ -167,42 +219,58 @@ public class TsvResultSet implements ResultSet {
 
     @Override
     public int getInt(int columnIndex) throws SQLException {
-        throw new UnsupportedOperationException("getInt is not supported; use getString");
+        String s = getString(columnIndex);
+        if (lastWasNull) {
+            return 0;
+        }
+        return parseInt(s);
     }
 
     @Override
     public int getInt(String columnLabel) throws SQLException {
-        throw new UnsupportedOperationException("getInt is not supported; use getString");
+        return getInt(findColumn(columnLabel));
     }
 
     @Override
     public long getLong(int columnIndex) throws SQLException {
-        throw new UnsupportedOperationException("getLong is not supported; use getString");
+        String s = getString(columnIndex);
+        if (lastWasNull) {
+            return 0L;
+        }
+        return parseLong(s);
     }
 
     @Override
     public long getLong(String columnLabel) throws SQLException {
-        throw new UnsupportedOperationException("getLong is not supported; use getString");
+        return getLong(findColumn(columnLabel));
     }
 
     @Override
     public float getFloat(int columnIndex) throws SQLException {
-        throw new UnsupportedOperationException("getFloat is not supported; use getString");
+        String s = getString(columnIndex);
+        if (lastWasNull) {
+            return 0f;
+        }
+        return (float) parseDouble(s);
     }
 
     @Override
     public float getFloat(String columnLabel) throws SQLException {
-        throw new UnsupportedOperationException("getFloat is not supported; use getString");
+        return getFloat(findColumn(columnLabel));
     }
 
     @Override
     public double getDouble(int columnIndex) throws SQLException {
-        throw new UnsupportedOperationException("getDouble is not supported; use getString");
+        String s = getString(columnIndex);
+        if (lastWasNull) {
+            return 0.0d;
+        }
+        return parseDouble(s);
     }
 
     @Override
     public double getDouble(String columnLabel) throws SQLException {
-        throw new UnsupportedOperationException("getDouble is not supported; use getString");
+        return getDouble(findColumn(columnLabel));
     }
 
     @Override
