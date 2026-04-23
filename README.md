@@ -80,7 +80,7 @@ Column lookup by label is **case-insensitive** (see `findColumn`).
 
 ## Limitations
 
-- **`TsvResultSet` is not a full JDBC `ResultSet`.** It is **forward-only** (`TYPE_FORWARD_ONLY`); methods for scrollable cursors, updates, and most typed getters throw `UnsupportedOperationException` (or return stubs where required by the interface). Use **`getString`** (and `getObject` for `String.class`) for values.
+- **`TsvResultSet` is not a full JDBC `ResultSet`.** It is **forward-only** (`TYPE_FORWARD_ONLY`); methods for scrollable cursors, updates, and many typed getters still throw `UnsupportedOperationException` (or return stubs). Use **`getString`**, or **`getInt` / `getLong` / `getFloat` / `getDouble`** (lenient parse from the cell text), and **`getObject` for `String.class`**.
 - **Empty fields** are treated like SQL `NULL` for `wasNull()`.
 - **Row/column count mismatch** between header and a data line is handled leniently (extra/missing cells); rely on your own validation if you need strict rectangular data.
 
@@ -91,6 +91,8 @@ mvn clean verify
 ```
 
 Produces `target/tsvresultset-1.0.0-SNAPSHOT.jar`.
+
+A copy of the same artifact (built with `mvn clean package`) is also committed under [`dist/`](dist/) for quick download without running Maven. Regenerate and copy it when you change the project version.
 
 ## License
 
