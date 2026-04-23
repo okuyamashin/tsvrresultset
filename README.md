@@ -6,6 +6,8 @@ Small utilities to **export a JDBC `ResultSet` to TSV** and to **read a TSV file
 - **Read:** [`TsvResultSet`](src/main/java/jp/engawa/tsvresultset/TsvResultSet.java) — parses that format and implements `java.sql.ResultSet` for forward-only string access.
 - **Metadata:** [`TsvMetaData`](src/main/java/jp/engawa/tsvresultset/TsvMetaData.java) — provides `ResultSetMetaData` from the header row (all columns as `VARCHAR`).
 
+![TsvResultSet library overview](explain.png)
+
 ## Requirements
 
 - **Java 17+**
